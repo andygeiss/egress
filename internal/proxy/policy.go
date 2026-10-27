@@ -20,6 +20,12 @@ func PublicHTTPS(ap netip.AddrPort) error {
 // when it points at the machine itself, at a network the machine sits in, or
 // into any range IANA keeps for something other than the public internet.
 func Public(a netip.Addr) bool {
+	// A zone ties an address to one link, so a public address never has one.
+	// It also hides the address from the checks below: Prefix.Contains is
+	// false for any zoned address, and ::%en0 does not equal ::.
+	if a.Zone() != "" {
+		return false
+	}
 	a = a.Unmap() // ::ffff:10.0.0.1 is 10.0.0.1
 	if !a.IsGlobalUnicast() || a.IsPrivate() {
 		return false // loopback, link-local, multicast, unspecified, 10/8, 172.16/12, 192.168/16, fc00::/7

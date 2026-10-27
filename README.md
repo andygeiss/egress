@@ -36,6 +36,8 @@ and before a single packet goes there.
   benchmarking, reserved.
 - An IPv6 address with an IPv4 address inside — mapped, NAT64, 6to4, Teredo —
   because the address inside can be a private one.
+- An IPv6 address with a zone, such as `::%en0`. A public address never has
+  one, and `::` with a zone still reaches the machine itself.
 
 ## Flags
 

@@ -38,6 +38,7 @@ func TestServeHTTP_refuses(t *testing.T) {
 		{"the machine itself", http.MethodConnect, "127.0.0.1:443", http.StatusForbidden, "refuse 127.0.0.1:443 (127.0.0.1 is not a public address)"},
 		{"a name that resolves to the machine itself", http.MethodConnect, "localhost:443", http.StatusForbidden, "refuse localhost:443 ("},
 		{"a private address inside an IPv6 one", http.MethodConnect, "[::ffff:10.0.0.1]:443", http.StatusForbidden, "refuse [::ffff:10.0.0.1]:443 (10.0.0.1 is not a public address)"},
+		{"an address with a zone", http.MethodConnect, "[::%25en0]:443", http.StatusForbidden, "refuse [::%en0]:443 (::%en0 is not a public address)"},
 		{"a port other than 443", http.MethodConnect, "1.1.1.1:80", http.StatusForbidden, "refuse 1.1.1.1:80 (port 80, and only 443 goes through)"},
 	}
 	for _, tt := range tests {

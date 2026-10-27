@@ -75,6 +75,14 @@ func TestPublic(t *testing.T) {
 		{"64:ff9b:1::1", false},
 		{"2001::1", false},
 		{"2002:a00:1::1", false},
+
+		// An address with a zone, which netip's range checks skip.
+		{"::%en0", false}, // dials ::1, the machine itself
+		{"::%1", false},
+		{"64:ff9b::a00:1%en0", false},
+		{"2002:a00:1::1%en0", false},
+		{"fec0::1%en0", false},
+		{"2606:4700:4700::1111%en0", false}, // a public address never needs a zone
 	}
 	for _, tt := range tests {
 		t.Run(tt.addr, func(t *testing.T) {
