@@ -22,12 +22,19 @@ func TestRun(t *testing.T) {
 		{"a bad flag is a usage error", []string{"-nope"}, errUsage, "", "flag provided but not defined: -nope"},
 		{"an argument is a usage error", []string{"extra"}, errUsage, "", `unexpected argument "extra"`},
 		{"-listen needs host:port", []string{"-listen", "8888"}, errUsage, "", `-listen "8888": want host:port`},
+		{"-listen needs a port up to 65535", []string{"-listen", "127.0.0.1:99999"}, errUsage, "", `-listen "127.0.0.1:99999": want a port from 0 to 65535`},
+		{"-listen needs a number for the port", []string{"-listen", "127.0.0.1:nope"}, errUsage, "", `-listen "127.0.0.1:nope": want a port from 0 to 65535`},
+		{"-listen needs a port after the colon", []string{"-listen", "127.0.0.1:"}, errUsage, "", `-listen "127.0.0.1:": want a port from 0 to 65535`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+			// Stopped before it starts, so a case that starts the proxy by
+			// mistake returns at once instead of serving until the test times out.
+			ctx, cancel := context.WithCancel(t.Context())
+			cancel()
 			var stdout, stderr bytes.Buffer
-			err := run(t.Context(), tt.args, &stdout, &stderr)
+			err := run(ctx, tt.args, &stdout, &stderr)
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("run = %v, want %v", err, tt.wantErr)
 			}

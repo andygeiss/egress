@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+	"strconv"
 	"sync"
 	"time"
 
@@ -64,8 +65,15 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 		fmt.Fprintln(stdout, version())
 		return nil
 	}
-	if _, _, err := net.SplitHostPort(*listen); err != nil {
+	_, port, err := net.SplitHostPort(*listen)
+	if err != nil {
 		fmt.Fprintf(stderr, "egress: -listen %q: want host:port, such as 127.0.0.1:8888\n", *listen)
+		return errUsage
+	}
+	// Only a number is a port: net.Listen would look up a service name, or
+	// pick any free port for an empty one, and its errors exit 1, not 2.
+	if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+		fmt.Fprintf(stderr, "egress: -listen %q: want a port from 0 to 65535\n", *listen)
 		return errUsage
 	}
 
