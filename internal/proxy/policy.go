@@ -41,12 +41,15 @@ func Public(a netip.Addr) bool {
 // reserved holds the special-purpose ranges that Public's two netip checks do
 // not cover, from IANA's IPv4 and IPv6 Special-Purpose Address Registries. An
 // IPv6 range that carries an IPv4 address inside is here because that IPv4
-// address can be a private one.
+// address can be a private one. Both blocks of IETF protocol assignments are
+// here whole, though IANA calls a few ranges inside them globally reachable:
+// they hold anycast services and identifiers, not HTTPS sites.
 var reserved = []netip.Prefix{
 	netip.MustParsePrefix("0.0.0.0/8"),       // "this network"
 	netip.MustParsePrefix("100.64.0.0/10"),   // shared address space: carrier NAT, Tailscale
 	netip.MustParsePrefix("192.0.0.0/24"),    // IETF protocol assignments
 	netip.MustParsePrefix("192.0.2.0/24"),    // documentation
+	netip.MustParsePrefix("192.88.99.0/24"),  // 6to4 relay anycast, deprecated, and the 6a44 relay
 	netip.MustParsePrefix("198.18.0.0/15"),   // benchmarking
 	netip.MustParsePrefix("198.51.100.0/24"), // documentation
 	netip.MustParsePrefix("203.0.113.0/24"),  // documentation
@@ -56,10 +59,11 @@ var reserved = []netip.Prefix{
 	netip.MustParsePrefix("64:ff9b::/96"),    // NAT64: IPv4 inside
 	netip.MustParsePrefix("64:ff9b:1::/48"),  // local NAT64
 	netip.MustParsePrefix("100::/64"),        // discard-only
-	netip.MustParsePrefix("2001::/32"),       // Teredo: IPv4 inside
-	netip.MustParsePrefix("2001:2::/48"),     // benchmarking
+	netip.MustParsePrefix("100:0:0:1::/64"),  // dummy prefix
+	netip.MustParsePrefix("2001::/23"),       // IETF protocol assignments, among them Teredo: IPv4 inside
 	netip.MustParsePrefix("2001:db8::/32"),   // documentation
 	netip.MustParsePrefix("2002::/16"),       // 6to4: IPv4 inside
 	netip.MustParsePrefix("3fff::/20"),       // documentation
+	netip.MustParsePrefix("5f00::/16"),       // segment routing (SRv6)
 	netip.MustParsePrefix("fec0::/10"),       // site-local, deprecated
 }

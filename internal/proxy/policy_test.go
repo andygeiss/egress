@@ -21,8 +21,11 @@ func TestPublic(t *testing.T) {
 		{"100.128.0.0", true},
 		{"172.15.255.255", true},
 		{"172.32.0.0", true},
+		{"192.88.98.255", true},
+		{"192.88.100.0", true},
 		{"198.17.255.255", true},
 		{"198.20.0.0", true},
+		{"2001:200::1", true},
 		{"2606:4700:4700::1111", true},
 		{"::ffff:1.1.1.1", true},
 
@@ -54,6 +57,8 @@ func TestPublic(t *testing.T) {
 		{"100.127.255.254", false},
 		{"192.0.0.8", false},
 		{"192.0.2.1", false},
+		{"192.88.99.1", false},
+		{"192.88.99.2", false},
 		{"198.18.0.1", false},
 		{"198.19.255.255", false},
 		{"198.51.100.1", false},
@@ -61,9 +66,13 @@ func TestPublic(t *testing.T) {
 		{"240.0.0.1", false},
 		{"255.255.255.255", false},
 		{"100::1", false},
+		{"100:0:0:1::1", false},
 		{"2001:2::1", false},
+		{"2001:10::1", false},
+		{"2001:1ff::1", false}, // the last /32 in 2001::/23
 		{"2001:db8::1", false},
 		{"3fff::1", false},
+		{"5f00::1", false},
 		{"fec0::1", false},
 
 		// An IPv4 address inside an IPv6 one.
